@@ -21,7 +21,7 @@ def main():
     if today.weekday()==0 or today.weekday()==6:
         is_weekend=True
     else:
-        is_weekend=True
+        is_weekend=False
     
     # Grab leanhogs dataset from Quandl
     data=[];
@@ -31,6 +31,8 @@ def main():
         print("Couldn't reach Quandl, sleeping and trying again")
         data=[];
         time.sleep(30*60);
+
+    print(data)
 
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
@@ -75,8 +77,8 @@ def main():
         sys.exit("Something went wrong")
         
     # Send the tweet
-    send_dummy_tweet(tweet_string)
-    #send_tweet(tweet_string,twitter)
+    #send_dummy_tweet(tweet_string)
+    send_tweet(tweet_string,twitter)
 
 def form_tweet_closing_price(data):
     arr=data.Settle.values
