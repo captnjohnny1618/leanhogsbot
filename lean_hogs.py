@@ -25,6 +25,10 @@ def main():
     
     # Grab leanhogs dataset from Quandl
     data=[];
+    with open('.quandl_key','r') as f:
+        API_KEY=f.read()
+    quandl.ApiConfig.api_key = API_KEY
+    
     try:
         data=quandl.get('CHRIS/CME_LN1',start_date=a_week_ago_datestr,end_date=today_datestr)
     except: # Can't access internet; wait 30 minutes and try again
@@ -82,9 +86,11 @@ def main():
 
 def form_tweet_closing_price(data):
     arr=data.Settle.values
-    yest_settle=arr[len(arr)-1];
-    today_settle=arr[len(arr)-2];
-    tweet_string="The lean hogs market (CME) closed at $%.2f, a %.2f%% change over the last day of trading." % (today_settle,(yest_settle-today_settle)/yest_settle*100)
+    today_settle=arr[len(arr)-1];
+    yest_settle=arr[len(arr)-2];
+    print(yest_settle)
+    print(today_settle)
+    tweet_string="The lean hogs market (CME) closed at $%.2f, a %.2f%% change over the last day of trading." % (today_settle,(today_settle-yest_settle)/yest_settle*100)
     return tweet_string
 
 def form_tweet_fun_fact():
