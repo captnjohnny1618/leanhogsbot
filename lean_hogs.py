@@ -7,39 +7,10 @@ from datetime import date,timedelta
 
 import random
 
-import quandl
+import yaml
 from twython import Twython
 
 def main():
-
-    # Set up our dates:
-    today=date.today()
-    a_week_ago=today-timedelta(days=7)
-    today_datestr=today.strftime("%Y-%m-%d")
-    a_week_ago_datestr=a_week_ago.strftime("%Y-%m-%d")
-
-    if today.weekday()==0 or today.weekday()==6:
-        is_weekend=True
-    else:
-        is_weekend=False
-    
-    # Grab leanhogs dataset from Quandl
-    data=[];
-    with open('.quandl_key','r') as f:
-        API_KEY=f.read()
-    quandl.ApiConfig.api_key = API_KEY
-    
-    try:
-        data=quandl.get('CHRIS/CME_LN1',start_date=a_week_ago_datestr,end_date=today_datestr)
-    except: # Can't access internet; wait 30 minutes and try again
-        print("Couldn't reach Quandl, sleeping and trying again")
-        data=[];
-        time.sleep(30*60);
-
-    print(data)
-
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
     with open('.app_key','r') as f:
         APP_KEY=f.read()
     with open('.app_secret','r') as f:
@@ -62,27 +33,30 @@ def main():
         print("User key: " + APP_KEY)
         print("User secret: " + APP_SECRET)
 
-    twitter=Twython(APP_KEY,APP_SECRET,OAUTH_TOKEN,OAUTH_TOKEN_SECRET)
+    #twitter=Twython(APP_KEY,APP_SECRET,OAUTH_TOKEN,OAUTH_TOKEN_SECRET)
 
     # Form our tweet (very basic, will be more complex in the future)
-    if not is_weekend:
-        choice=random.randint(1,1);
-    else:
-        choice=-1
+    with open("tweet_list.yml",'r') as f:
+        tweet_dict=yaml.load(f)
 
-    if choice==-1:
-        tweet_string=form_tweet_fun_fact()
-    elif choice==1:
-        tweet_string=form_tweet_closing_price(data)
-    elif choice==2:
-        print('Ummm wat');
-        sys.exit()
-    else:
-        sys.exit("Something went wrong")
+    tweet_subset=tweet_dict['generic']
+
+    tweet=random.sample(tweet_subset,1)
+
+    send_dummy_tweet(tweet[0])
+    #if choice==-1:
+    #    tweet_string=form_tweet_fun_fact()
+    #elif choice==1:
+    #    tweet_string=form_tweet_closing_price(data)
+    #elif choice==2:
+    #    print('Ummm wat');
+    #    sys.exit()
+    #else:
+    #    sys.exit("Something went wrong")
         
     # Send the tweet
     #send_dummy_tweet(tweet_string)
-    send_tweet(tweet_string,twitter)
+    #send_tweet("test01",twitter)
 
 def form_tweet_closing_price(data):
     arr=data.Settle.values
